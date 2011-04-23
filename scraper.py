@@ -8,6 +8,23 @@ class QuestScraper(object):
 	def __init__(self):
 		self.br = mechanize.Browser()
 
+	def is_logged_in(self):
+		"""
+		Determine whether currently in a valid session.
+		"""
+
+		# Grab the universal header.
+		self.br.open(self.base_url + 's/WEBLIB_PT_NAV.ISCRIPT1.FieldFormula.'
+				'IScript_UniHeader_Frame')
+
+		resp = self.br.response().read()
+		soup = BeautifulSoup.BeautifulSoup(resp)
+
+		# If the header loads and has a link to log out, we're probably logged
+		# in.
+		return bool(soup.find(attrs={'class': 'headerLinkActive'},
+				text=re.compile('Sign out')))
+
 	def login(self, username, password):
 		self.br.open(self.base_url + '?cmd=login')
 		self.br.select_form('login')
