@@ -18,6 +18,13 @@ except scraper.LoginError as e:
 courses, grades = qs.fetch_grades(term)
 ```
 
+## Setup
+
+### Dependencies
+
+* [BeautifulSoup](http://www.crummy.com/software/BeautifulSoup/): `pip install beautifulsoup`
+* [mechanize](http://wwwsearch.sourceforge.net/mechanize/): `pip install mechanize`
+
 ## Usage
 
 The current way to use this package is through `git-submodule`:
