@@ -71,6 +71,18 @@ class QuestScraper(object):
 		else:
 			raise InterfaceError('Unexpected result upon logging in.')
 
+	def _parse_grade(self, grade):
+		"""
+		Suppress all non-grade values.
+		
+		Some valid grade values include: '', '12', 'CR'.
+		"""
+
+		if 'nbsp' in grade: # Empty cells have &nbsp; in them.
+			return ''
+		else:
+			return grade
+
 	def fetch_grades(self, term):
 		"""
 		Fetch the grades for a given term.
@@ -95,4 +107,4 @@ class QuestScraper(object):
 			raise InterfaceError('Mismatch between number of courses (%d) and'
 					'number of grades (%d)' % (len(courses), len(grades)))
 
-		return courses, grades
+		return courses, [self._parse_grade(x) for x in grades]
