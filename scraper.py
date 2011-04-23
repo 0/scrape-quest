@@ -41,12 +41,9 @@ class QuestScraper(object):
 		self.br.submit()
 
 		resp = self.br.response().read()
-
-		self.br.close()
-
 		soup = BeautifulSoup.BeautifulSoup(resp)
 
-		courses = [x.text for x in soup.findAll(attrs={'id': re.compile('CLS_LINK.+')})]
+		courses = [x.text for x in soup.findAll(attrs={'id': re.compile('CLS_LINK')})]
 		grades = [x.text for x in soup.findAll(attrs={'class': 'PABOLDTEXT'})]
 
 		return courses, grades
