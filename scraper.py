@@ -15,6 +15,12 @@ class LoginError(Exception):
 	"""
 
 
+class AuthenticationError(Exception):
+	"""
+	An attempt to do something without being logged in.
+	"""
+
+
 class QuestScraper(object):
 	"""
 	A scraper for Quest.
@@ -24,7 +30,13 @@ class QuestScraper(object):
 
 	base_url = 'https://quest.pecs.uwaterloo.ca/psc/SS/ACADEMIC/SA/'
 
-	def __init__(self):
+	def __init__(self, auto_authenticate=False):
+		# Do we automatically attempt to log in if we're logged out?
+		self.auto_authenticate = auto_authenticate
+		# Credentials are set by a call to login.
+		self.username = None
+		self.password = None
+
 		self.br = mechanize.Browser()
 
 	def is_logged_in(self):
@@ -51,6 +63,10 @@ class QuestScraper(object):
 		Raises LoginError if Quest refuses the credentials.
 		"""
 
+		if self.auto_authenticate:
+			self.username = username
+			self.password = password
+
 		self.br.open(self.base_url + '?cmd=login')
 		self.br.select_form('login')
 		self.br.form['userid'] = username
@@ -71,6 +87,23 @@ class QuestScraper(object):
 		else:
 			raise InterfaceError('Unexpected result upon logging in.')
 
+	def _authenticated(f):
+		"""
+		Decorator for methods which must have a valid session to work.
+		"""
+
+		def decorated(self, *args):
+			if self.is_logged_in():
+				pass
+			elif self.auto_authenticate and self.username and self.password:
+				self.login(self.username, self.password)
+			else:
+				raise AuthenticationError('Not logged in.')
+
+			return f(self, *args)
+
+		return decorated
+
 	def _parse_grade(self, grade):
 		"""
 		Suppress all non-grade values.
@@ -83,6 +116,7 @@ class QuestScraper(object):
 		else:
 			return grade
 
+	@_authenticated
 	def fetch_grades(self, term):
 		"""
 		Fetch the grades for a given term.
