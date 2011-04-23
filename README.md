@@ -2,6 +2,22 @@
 
 Python interface to the [University of Waterloo Quest System](http://quest.uwaterloo.ca/).
 
+## Synopsis
+
+``` python
+from quest import scraper
+
+qs = scraper.QuestScraper()
+
+try:
+    qs.login(username, password)
+except scraper.LoginError as e:
+    print e.message
+    sys.exit(1)
+
+courses, grades = qs.fetch_grades(term)
+```
+
 ## Usage
 
 The current way to use this package is through `git-submodule`:
