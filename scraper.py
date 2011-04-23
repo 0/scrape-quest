@@ -117,14 +117,39 @@ class QuestScraper(object):
 			return grade
 
 	@_authenticated
+	def fetch_grade_terms(self):
+		"""
+		Fetch the list of terms for which grades can be requested.
+		"""
+
+		self.br.open(self.base_url + 'c/SA_LEARNER_SERVICES.SSR_SSENRL_GRADE.'
+				'GBL?Page=SSR_SSENRL_GRADE')
+
+		resp = self.br.response().read()
+		soup = BeautifulSoup.BeautifulSoup(resp)
+
+		term_ids = [x.get('value') for x in
+				soup.findAll(attrs={'name': 'SSR_DUMMY_RECV1$sels$0'})]
+		terms = [x.text for x in
+				soup.findAll(attrs={'class': 'PSEDITBOX_DISPONLY'})[0::3]]
+
+		if len(term_ids) != len(terms):
+			raise InterfaceError('Mismatch between number of term_ids (%d) '
+					'and number of terms (%d)' % (len(term_ids), len(terms)))
+
+		return term_ids, terms
+
+	@_authenticated
 	def fetch_grades(self, term):
 		"""
 		Fetch the grades for a given term.
 
 		term -- Specified as the radio button ID string of the desired term.
+		        (cf. fetch_grade_terms)
 		"""
 
-		self.br.open(self.base_url + 'c/SA_LEARNER_SERVICES.SSR_SSENRL_GRADE.GBL?Page=SSR_SSENRL_GRADE')
+		self.br.open(self.base_url + 'c/SA_LEARNER_SERVICES.SSR_SSENRL_GRADE.'
+				'GBL?Page=SSR_SSENRL_GRADE')
 		self.br.select_form('win0')
 		self.br.form.set_all_readonly(False)
 		self.br.form['SSR_DUMMY_RECV1$sels$0'] = [term]
@@ -138,7 +163,7 @@ class QuestScraper(object):
 		grades = [x.text for x in soup.findAll(attrs={'class': 'PABOLDTEXT'})]
 
 		if len(courses) != len(grades):
-			raise InterfaceError('Mismatch between number of courses (%d) and'
+			raise InterfaceError('Mismatch between number of courses (%d) and '
 					'number of grades (%d)' % (len(courses), len(grades)))
 
 		return courses, [self._parse_grade(x) for x in grades]
