@@ -87,7 +87,8 @@ class QuestScraper(object):
 			if len(error_tags) == 1:
 				raise LoginError('Quest: %s' % (error_tags[0].text))
 			else:
-				raise InterfaceError('Could not determine error when logging in.')
+				raise InterfaceError('Could not determine error when logging'
+						'in.')
 		elif self.is_logged_in():
 			logger.debug('Successfully logged in.')
 
@@ -157,7 +158,7 @@ class QuestScraper(object):
 		Fetch the grades for a given term.
 
 		term -- Specified as the radio button ID string of the desired term.
-		        (cf. fetch_grade_terms)
+				(cf. fetch_grade_terms)
 		"""
 
 		logger.debug('Fetching grades for term "%s".', term)
@@ -173,7 +174,8 @@ class QuestScraper(object):
 		resp = self.br.response().read()
 		soup = BeautifulSoup.BeautifulSoup(resp)
 
-		courses = [x.text for x in soup.findAll(attrs={'id': re.compile('CLS_LINK')})]
+		courses = [x.text for x in soup.findAll(attrs={
+				'id': re.compile('CLS_LINK')})]
 		grades = [x.text for x in soup.findAll(attrs={'class': 'PABOLDTEXT'})]
 
 		if len(courses) != len(grades):
