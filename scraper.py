@@ -1,6 +1,10 @@
 import BeautifulSoup
+import logging
 import mechanize
 import re
+
+
+logger = logging.getLogger(__name__)
 
 
 class InterfaceError(Exception):
@@ -83,6 +87,7 @@ class QuestScraper(object):
 			else:
 				raise InterfaceError('Could not determine error when logging in.')
 		elif self.is_logged_in():
+			logger.debug('Successfully logged in.')
 			return True
 		else:
 			raise InterfaceError('Unexpected result upon logging in.')
@@ -94,8 +99,10 @@ class QuestScraper(object):
 
 		def decorated(self, *args):
 			if self.is_logged_in():
+				logger.debug('Already logged in.')
 				pass
 			elif self.auto_authenticate and self.username and self.password:
+				logger.info('Automatically logging in as "%s"', self.username)
 				self.login(self.username, self.password)
 			else:
 				raise AuthenticationError('Not logged in.')
