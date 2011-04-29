@@ -71,6 +71,8 @@ class QuestScraper(object):
 			self.username = username
 			self.password = password
 
+		logger.debug('Logging in as "%s".', username)
+
 		self.br.open(self.base_url + '?cmd=login')
 		self.br.select_form('login')
 		self.br.form['userid'] = username
@@ -88,6 +90,7 @@ class QuestScraper(object):
 				raise InterfaceError('Could not determine error when logging in.')
 		elif self.is_logged_in():
 			logger.debug('Successfully logged in.')
+
 			return True
 		else:
 			raise InterfaceError('Unexpected result upon logging in.')
@@ -100,9 +103,9 @@ class QuestScraper(object):
 		def decorated(self, *args):
 			if self.is_logged_in():
 				logger.debug('Already logged in.')
-				pass
 			elif self.auto_authenticate and self.username and self.password:
-				logger.info('Automatically logging in as "%s"', self.username)
+				logger.info('Automatically logging in as "%s".', self.username)
+
 				self.login(self.username, self.password)
 			else:
 				raise AuthenticationError('Not logged in.')
@@ -129,6 +132,8 @@ class QuestScraper(object):
 		Fetch the list of terms for which grades can be requested.
 		"""
 
+		logger.debug('Fetching list of terms.')
+
 		self.br.open(self.base_url + 'c/SA_LEARNER_SERVICES.SSR_SSENRL_GRADE.'
 				'GBL?Page=SSR_SSENRL_GRADE')
 
@@ -154,6 +159,8 @@ class QuestScraper(object):
 		term -- Specified as the radio button ID string of the desired term.
 		        (cf. fetch_grade_terms)
 		"""
+
+		logger.debug('Fetching grades for term "%s".', term)
 
 		self.br.open(self.base_url + 'c/SA_LEARNER_SERVICES.SSR_SSENRL_GRADE.'
 				'GBL?Page=SSR_SSENRL_GRADE')
