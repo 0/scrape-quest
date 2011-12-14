@@ -174,7 +174,7 @@ class QuestScraper(object):
 		resp = self.br.response().read()
 		soup = BeautifulSoup.BeautifulSoup(resp)
 
-		courses = [x.text for x in soup.findAll(attrs={
+		courses = [x.text for x in soup.findAll('a', attrs={
 				'id': re.compile('CLS_LINK')})]
 		grades = [x.text for x in soup.findAll(attrs={'class': 'PABOLDTEXT'})]
 
