@@ -43,6 +43,18 @@ class QuestScraper(object):
 
 		self.br = mechanize.Browser()
 
+		### Ugly hack because Quest insists on SSL 3.
+		import ssl
+
+		real_wrap = ssl.wrap_socket
+
+		def fake_wrap(*args, **kwargs):
+			kwargs['ssl_version'] = ssl.PROTOCOL_SSLv3
+
+			return real_wrap(*args, **kwargs)
+
+		ssl.wrap_socket = fake_wrap
+
 	def is_logged_in(self):
 		"""
 		Determine whether currently in a valid session.
@@ -118,7 +130,7 @@ class QuestScraper(object):
 	def _parse_grade(self, grade):
 		"""
 		Suppress all non-grade values.
-		
+
 		Some valid grade values include: '', '12', 'CR'.
 		"""
 
